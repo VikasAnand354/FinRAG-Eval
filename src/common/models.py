@@ -52,3 +52,45 @@ class BenchmarkExample(BaseModel):
     time_sensitive: bool = False
     requires_multi_hop: bool = False
     source_split: str
+
+
+class RunConfig(BaseModel):
+    run_id: str
+    dataset_path: str
+    chunks_path: str
+    retriever: str
+    top_k: int
+    generation_adapter: str
+    output_dir: str
+
+
+class PipelineResult(BaseModel):
+    example_id: str
+    answer: str
+    citations: List[str]
+    latency_ms: float
+    prompt_tokens: int
+    completion_tokens: int
+
+
+class ScoredRow(BaseModel):
+    example_id: str
+    answer: str
+    citations: List[str]
+    latency_ms: float
+    prompt_tokens: int
+    completion_tokens: int
+    cost_usd: float
+    exact_match: bool
+    citation_precision: float
+    citation_recall: float
+    faithful: bool
+    faithfulness_score: Optional[float]
+
+
+class RunArtifact(BaseModel):
+    run_id: str
+    timestamp: datetime
+    config_snapshot: dict
+    scores: List[ScoredRow]
+    aggregate: dict
