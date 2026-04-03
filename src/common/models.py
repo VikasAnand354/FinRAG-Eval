@@ -23,14 +23,14 @@ class Chunk(BaseModel):
     chunk_id: str
     document_id: str
     company: str
-    section_title: Optional[str]
-    section_path: Optional[List[str]]
-    page_number: Optional[int]
-    paragraph_number: Optional[int]
+    section_title: Optional[str] = None
+    section_path: Optional[List[str]] = None
+    page_number: Optional[int] = None
+    paragraph_number: Optional[int] = None
     text: str
     token_count: int
-    report_period_end: Optional[str]
-    filing_date: Optional[str]
+    report_period_end: Optional[str] = None
+    filing_date: Optional[str] = None
 
 class GoldCitation(BaseModel):
     document_id: str
