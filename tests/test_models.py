@@ -96,3 +96,55 @@ def test_run_artifact_round_trip():
         aggregate={"n_examples": 1},
     )
     assert RunArtifact.model_validate_json(artifact.model_dump_json()) == artifact
+
+
+def test_qa_candidate_round_trip():
+    from src.common.models import QACandidate
+
+    c = QACandidate(
+        candidate_id="aapl_10k_2023__c0001-q0",
+        chunk_id="aapl_10k_2023__c0001",
+        document_id="aapl_10k_2023",
+        company="AAPL",
+        question="What were Apple's total net sales for fiscal 2023?",
+        gold_answer="$383.3 billion",
+        difficulty="easy",
+        question_type="numerical",
+        gold_citations=["aapl_10k_2023__c0001"],
+    )
+    assert QACandidate.model_validate_json(c.model_dump_json()) == c
+    assert c.review_status == "pending"
+    assert c.reviewer_note == ""
+
+
+def test_qa_candidate_difficulty_values():
+    import pytest
+    from pydantic import ValidationError
+
+    from src.common.models import QACandidate
+
+    with pytest.raises(ValidationError):
+        QACandidate(
+            candidate_id="x-q0",
+            chunk_id="x",
+            document_id="x",
+            company="X",
+            question="q",
+            gold_answer="a",
+            difficulty="invalid",
+            question_type="factual",
+            gold_citations=["x"],
+        )
+
+
+def test_dataset_build_config_round_trip():
+    from src.common.models import DatasetBuildConfig
+
+    cfg = DatasetBuildConfig(
+        tickers=["AAPL", "MSFT"],
+        fiscal_years=[2023, 2024],
+        output_dir="datasets/full/",
+    )
+    assert DatasetBuildConfig.model_validate_json(cfg.model_dump_json()) == cfg
+    assert cfg.questions_per_chunk == 2
+    assert cfg.generation_adapter == "azure_openai"

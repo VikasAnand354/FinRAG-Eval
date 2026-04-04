@@ -1,4 +1,5 @@
 from datetime import datetime
+from typing import Literal
 
 from pydantic import BaseModel
 
@@ -20,6 +21,7 @@ class DocumentMetadata(BaseModel):
     sha256: str | None
     collected_at: datetime
 
+
 class Chunk(BaseModel):
     chunk_id: str
     document_id: str
@@ -33,10 +35,12 @@ class Chunk(BaseModel):
     report_period_end: str | None = None
     filing_date: str | None = None
 
+
 class GoldCitation(BaseModel):
     document_id: str
     chunk_id: str
     support_type: str
+
 
 class BenchmarkExample(BaseModel):
     example_id: str
@@ -95,3 +99,29 @@ class RunArtifact(BaseModel):
     config_snapshot: dict
     scores: list[ScoredRow]
     aggregate: dict
+
+
+class QACandidate(BaseModel):
+    candidate_id: str
+    chunk_id: str
+    document_id: str
+    company: str
+    question: str
+    gold_answer: str
+    difficulty: Literal["easy", "medium", "hard"]
+    question_type: Literal["factual", "numerical", "comparative", "multi_hop"]
+    gold_citations: list[str]
+    review_status: Literal["pending", "approved", "rejected", "edited"] = "pending"
+    reviewer_note: str = ""
+
+
+class DatasetBuildConfig(BaseModel):
+    tickers: list[str]
+    fiscal_years: list[int]
+    form_types: list[str] = ["10-K", "10-Q"]
+    sections: list[str] = ["Risk Factors", "MD&A", "Financial Statements"]
+    top_k_chunks_per_section: int = 5
+    questions_per_chunk: int = 2
+    difficulty_mix: dict[str, float] = {"easy": 0.5, "medium": 0.3, "hard": 0.2}
+    output_dir: str = "datasets/full/"
+    generation_adapter: str = "azure_openai"
