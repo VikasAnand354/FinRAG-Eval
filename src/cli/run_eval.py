@@ -1,25 +1,86 @@
-import json
+from datetime import datetime, timezone
+from pathlib import Path
 
-def load_examples(path):
-    with open(path, "r") as f:
-        return [json.loads(line) for line in f]
+import typer
+from rich.console import Console
+from rich.progress import track
 
-def dummy_pipeline(question: str):
-    return {"answer": "dummy answer", "citations": [], "latency": 0.1}
+from src.common.config import load_run_config
+from src.common.models import BenchmarkExample, Chunk, RunArtifact
+from src.evaluators.faithfulness import FAITHFULNESS_PROMPT_VERSION
+from src.evaluators.runner import evaluate
+from src.leaderboard.artifacts import compute_aggregate, write_artifact
+from src.leaderboard.summary import generate_summary
+from src.retrieval.bm25 import BM25Retriever
 
-def evaluate_example(example, prediction):
-    correct = example["gold_answer"].lower() in prediction["answer"].lower()
-    return {"example_id": example["example_id"], "correct": correct, "latency": prediction["latency"]}
+app = typer.Typer()
+console = Console()
 
-def run_eval(dataset_path):
-    examples = load_examples(dataset_path)
-    results = []
-    for ex in examples:
-        pred = dummy_pipeline(ex["question"])
-        results.append(evaluate_example(ex, pred))
-    return results
+
+@app.command()
+def main(config: str = typer.Option(..., "--config", help="Path to YAML run config")) -> None:
+    run_config = load_run_config(config)
+
+    examples: list[BenchmarkExample] = []
+    with open(run_config.dataset_path) as f:
+        for line in f:
+            line = line.strip()
+            if line:
+                examples.append(BenchmarkExample.model_validate_json(line))
+
+    chunks: list[Chunk] = []
+    with open(run_config.chunks_path) as f:
+        for line in f:
+            line = line.strip()
+            if line:
+                chunks.append(Chunk.model_validate_json(line))
+
+    retriever = BM25Retriever(chunks)
+
+    if run_config.generation_adapter == "mock":
+        from src.generation.azure_openai import MockGenerationAdapter
+        adapter = MockGenerationAdapter()
+    elif run_config.generation_adapter == "azure_openai":
+        from src.generation.azure_openai import AzureOpenAIAdapter
+        adapter = AzureOpenAIAdapter()
+    else:
+        raise ValueError(f"Unknown generation_adapter: {run_config.generation_adapter}")
+
+    config_snapshot = {
+        **run_config.model_dump(),
+        "faithfulness_prompt_version": FAITHFULNESS_PROMPT_VERSION,
+    }
+
+    scored_rows = []
+    for example in track(examples, description="Evaluating..."):
+        retrieved = retriever.retrieve(example.question, top_k=run_config.top_k)
+        result = adapter.generate(
+            example_id=example.example_id,
+            question=example.question,
+            chunks=retrieved,
+        )
+        row = evaluate(
+            result=result,
+            example=example,
+            chunks=retrieved,
+            judge=adapter,
+            config=run_config,
+        )
+        scored_rows.append(row)
+
+    aggregate = compute_aggregate(scored_rows)
+    artifact = RunArtifact(
+        run_id=run_config.run_id,
+        timestamp=datetime.now(timezone.utc),
+        config_snapshot=config_snapshot,
+        scores=scored_rows,
+        aggregate=aggregate,
+    )
+
+    out_dir = write_artifact(artifact, Path(run_config.output_dir))
+    console.print(generate_summary(artifact))
+    console.print(f"\nArtifact saved to: {out_dir}")
+
 
 if __name__ == "__main__":
-    results = run_eval("data/splits/test.jsonl")
-    print("Total:", len(results))
-    print("Accuracy:", sum(r["correct"] for r in results) / len(results))
+    app()
