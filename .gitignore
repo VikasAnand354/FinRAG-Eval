@@ -16,5 +16,8 @@ build/
 # Outputs
 outputs/
 
+# Generated dataset (fetched filings + LLM candidates)
+datasets/full/
+
 # macOS
 .DS_Store

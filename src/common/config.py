@@ -3,7 +3,7 @@ import os
 import yaml
 from dotenv import load_dotenv
 
-from src.common.models import RunConfig
+from src.common.models import DatasetBuildConfig, RunConfig
 
 
 def load_run_config(path: str) -> RunConfig:
@@ -11,6 +11,13 @@ def load_run_config(path: str) -> RunConfig:
     with open(path) as f:
         data = yaml.safe_load(f)
     return RunConfig(**data)
+
+
+def load_dataset_build_config(path: str) -> DatasetBuildConfig:
+    load_dotenv()
+    with open(path) as f:
+        data = yaml.safe_load(f)
+    return DatasetBuildConfig(**data)
 
 
 def get_azure_settings() -> dict[str, str]:

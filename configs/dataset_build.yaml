@@ -1,0 +1,22 @@
+tickers:
+  - AAPL
+  - MSFT
+  - JPM
+fiscal_years:
+  - 2023
+  - 2024
+form_types:
+  - 10-K
+  - 10-Q
+sections:
+  - Risk Factors
+  - MD&A
+  - Financial Statements
+top_k_chunks_per_section: 5
+questions_per_chunk: 2
+difficulty_mix:
+  easy: 0.5
+  medium: 0.3
+  hard: 0.2
+output_dir: datasets/full/
+generation_adapter: azure_openai
