@@ -1,0 +1,7 @@
+run_id: smoke-001
+dataset_path: datasets/sample/qa_examples.jsonl
+chunks_path: datasets/sample/chunks.jsonl
+retriever: bm25
+top_k: 3
+generation_adapter: mock
+output_dir: outputs/
