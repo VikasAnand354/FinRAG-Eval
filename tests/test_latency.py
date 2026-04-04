@@ -1,7 +1,9 @@
 from src.common.models import PipelineResult
 
 
-def _make_result(latency_ms: float = 200.0, prompt_tokens: int = 100, completion_tokens: int = 50) -> PipelineResult:
+def _make_result(
+    latency_ms: float = 200.0, prompt_tokens: int = 100, completion_tokens: int = 50
+) -> PipelineResult:
     return PipelineResult(
         example_id="q001",
         answer="test",

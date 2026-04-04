@@ -1,4 +1,4 @@
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from pathlib import Path
 
 import typer
@@ -71,7 +71,7 @@ def main(config: str = typer.Option(..., "--config", help="Path to YAML run conf
     aggregate = compute_aggregate(scored_rows)
     artifact = RunArtifact(
         run_id=run_config.run_id,
-        timestamp=datetime.now(timezone.utc),
+        timestamp=datetime.now(UTC),
         config_snapshot=config_snapshot,
         scores=scored_rows,
         aggregate=aggregate,

@@ -34,7 +34,9 @@ def test_bm25_retrieves_most_relevant_chunk():
 def test_bm25_top_k_respects_limit():
     from src.retrieval.bm25 import BM25Retriever
 
-    chunks = [_make_chunk(f"doc{i}__c0000", f"text about financial topic number {i}") for i in range(5)]
+    chunks = [
+        _make_chunk(f"doc{i}__c0000", f"text about financial topic number {i}") for i in range(5)
+    ]
     retriever = BM25Retriever(chunks)
     results = retriever.retrieve("financial topic", top_k=3)
     assert len(results) == 3

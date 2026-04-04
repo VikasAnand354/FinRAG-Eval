@@ -1,6 +1,7 @@
-import requests
-from pathlib import Path
 import time
+from pathlib import Path
+
+import requests
 
 BASE_URL = "https://data.sec.gov"
 HEADERS = {"User-Agent": "finrag-eval your_email@example.com"}

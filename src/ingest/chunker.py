@@ -1,4 +1,3 @@
-from typing import List, Optional
 
 from tiktoken import get_encoding
 
@@ -9,7 +8,7 @@ def count_tokens(text: str) -> int:
     return len(ENC.encode(text))
 
 
-def simple_paragraph_split(text: str) -> List[str]:
+def simple_paragraph_split(text: str) -> list[str]:
     return [p.strip() for p in text.split("\n\n") if p.strip()]
 
 
@@ -21,9 +20,9 @@ def chunk_document(
     document_id: str,
     company: str,
     text: str,
-    filing_date: Optional[str] = None,
-    report_period_end: Optional[str] = None,
-) -> List[dict]:
+    filing_date: str | None = None,
+    report_period_end: str | None = None,
+) -> list[dict]:
     paragraphs = simple_paragraph_split(text)
     chunks = []
     for i, p in enumerate(paragraphs):

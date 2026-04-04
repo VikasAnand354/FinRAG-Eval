@@ -7,15 +7,9 @@ def score_citations(result: PipelineResult, example: BenchmarkExample) -> dict[s
     predicted = set(result.citations)
     gold = {gc.chunk_id for gc in example.gold_citations}
 
-    if not predicted:
-        precision = 0.0
-    else:
-        precision = len(predicted & gold) / len(predicted)
+    precision = 0.0 if not predicted else len(predicted & gold) / len(predicted)
 
-    if not gold:
-        recall = 1.0
-    else:
-        recall = len(predicted & gold) / len(gold)
+    recall = 1.0 if not gold else len(predicted & gold) / len(gold)
 
     answer_lower = result.answer.lower()
     gold_lower = example.gold_answer.lower().strip()

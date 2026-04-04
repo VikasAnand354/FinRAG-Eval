@@ -1,36 +1,37 @@
-from pydantic import BaseModel
-from typing import List, Optional
 from datetime import datetime
+
+from pydantic import BaseModel
+
 
 class DocumentMetadata(BaseModel):
     document_id: str
     company: str
     company_name: str
     source_type: str
-    source_url: Optional[str]
+    source_url: str | None
     doc_family: str
-    fiscal_period: Optional[str]
-    calendar_date: Optional[str]
-    filing_date: Optional[str]
-    report_period_end: Optional[str]
+    fiscal_period: str | None
+    calendar_date: str | None
+    filing_date: str | None
+    report_period_end: str | None
     language: str = "en"
     format: str
     local_path: str
-    sha256: Optional[str]
+    sha256: str | None
     collected_at: datetime
 
 class Chunk(BaseModel):
     chunk_id: str
     document_id: str
     company: str
-    section_title: Optional[str] = None
-    section_path: Optional[List[str]] = None
-    page_number: Optional[int] = None
-    paragraph_number: Optional[int] = None
+    section_title: str | None = None
+    section_path: list[str] | None = None
+    page_number: int | None = None
+    paragraph_number: int | None = None
     text: str
     token_count: int
-    report_period_end: Optional[str] = None
-    filing_date: Optional[str] = None
+    report_period_end: str | None = None
+    filing_date: str | None = None
 
 class GoldCitation(BaseModel):
     document_id: str
@@ -45,10 +46,10 @@ class BenchmarkExample(BaseModel):
     difficulty: str
     answer_type: str
     gold_answer: str
-    gold_answer_normalized: Optional[float]
-    normalization_unit: Optional[str]
-    gold_citations: List[GoldCitation]
-    acceptable_aliases: Optional[List[str]] = []
+    gold_answer_normalized: float | None
+    normalization_unit: str | None
+    gold_citations: list[GoldCitation]
+    acceptable_aliases: list[str] | None = []
     time_sensitive: bool = False
     requires_multi_hop: bool = False
     source_split: str
@@ -67,7 +68,7 @@ class RunConfig(BaseModel):
 class PipelineResult(BaseModel):
     example_id: str
     answer: str
-    citations: List[str]
+    citations: list[str]
     latency_ms: float
     prompt_tokens: int
     completion_tokens: int
@@ -76,7 +77,7 @@ class PipelineResult(BaseModel):
 class ScoredRow(BaseModel):
     example_id: str
     answer: str
-    citations: List[str]
+    citations: list[str]
     latency_ms: float
     prompt_tokens: int
     completion_tokens: int
@@ -85,12 +86,12 @@ class ScoredRow(BaseModel):
     citation_precision: float
     citation_recall: float
     faithful: bool
-    faithfulness_score: Optional[float]
+    faithfulness_score: float | None
 
 
 class RunArtifact(BaseModel):
     run_id: str
     timestamp: datetime
     config_snapshot: dict
-    scores: List[ScoredRow]
+    scores: list[ScoredRow]
     aggregate: dict

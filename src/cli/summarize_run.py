@@ -11,7 +11,9 @@ console = Console()
 
 
 @app.command()
-def main(run_dir: str = typer.Option(..., "--run-dir", help="Path to run output directory")) -> None:
+def main(
+    run_dir: str = typer.Option(..., "--run-dir", help="Path to run output directory"),
+) -> None:
     artifact_path = Path(run_dir) / "artifact.json"
     if not artifact_path.exists():
         console.print(f"[red]artifact.json not found in {run_dir}[/red]")

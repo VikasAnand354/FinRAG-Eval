@@ -1,6 +1,5 @@
-import json
 import tempfile
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from pathlib import Path
 
 import pytest
@@ -31,7 +30,7 @@ def _make_artifact(run_id: str = "test-001", n_rows: int = 2) -> RunArtifact:
     rows = [_make_row(f"q{i:03d}") for i in range(1, n_rows + 1)]
     return RunArtifact(
         run_id=run_id,
-        timestamp=datetime(2026, 4, 3, tzinfo=timezone.utc),
+        timestamp=datetime(2026, 4, 3, tzinfo=UTC),
         config_snapshot={"run_id": run_id, "retriever": "bm25"},
         scores=rows,
         aggregate=compute_aggregate(rows),

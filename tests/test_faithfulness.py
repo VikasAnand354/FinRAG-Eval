@@ -51,12 +51,19 @@ def test_exactly_at_threshold_is_faithful():
 
 def test_bad_json_response_returns_none():
     from src.common.models import Chunk, PipelineResult
-    from src.generation.base import GenerationAdapter
     from src.evaluators.faithfulness import score_faithfulness
+    from src.generation.base import GenerationAdapter
 
     class BadJudge(GenerationAdapter):
         def generate(self, example_id: str, question: str, chunks: list[Chunk]) -> PipelineResult:
-            return PipelineResult(example_id=example_id, answer="", citations=[], latency_ms=0, prompt_tokens=0, completion_tokens=0)
+            return PipelineResult(
+                example_id=example_id,
+                answer="",
+                citations=[],
+                latency_ms=0,
+                prompt_tokens=0,
+                completion_tokens=0,
+            )
 
         def judge(self, prompt: str) -> tuple[str, float, int, int]:
             return ("not valid json at all", 1.0, 0, 0)

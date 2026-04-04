@@ -98,7 +98,7 @@ def test_exact_match_false():
 
 
 def test_exact_match_via_alias():
-    from src.common.models import BenchmarkExample, GoldCitation
+    from src.common.models import BenchmarkExample
     from src.evaluators.citation import score_citations
 
     example = BenchmarkExample(

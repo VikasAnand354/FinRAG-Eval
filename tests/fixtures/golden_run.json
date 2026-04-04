@@ -1,0 +1,40 @@
+{
+  "run_id": "golden-001",
+  "timestamp": "2026-04-03T00:00:00Z",
+  "config_snapshot": {
+    "run_id": "golden-001",
+    "dataset_path": "datasets/sample/qa_examples.jsonl",
+    "chunks_path": "datasets/sample/chunks.jsonl",
+    "retriever": "bm25",
+    "top_k": 3,
+    "generation_adapter": "mock",
+    "output_dir": "outputs/",
+    "faithfulness_prompt_version": "faithfulness-v1"
+  },
+  "scores": [
+    {
+      "example_id": "q001",
+      "answer": "$383.3 billion",
+      "citations": ["aapl_10k_2023__c0001", "aapl_10k_2023__c0002", "aapl_10k_2023__c0000"],
+      "latency_ms": 1.0,
+      "prompt_tokens": 10,
+      "completion_tokens": 5,
+      "cost_usd": 0.00025,
+      "exact_match": true,
+      "citation_precision": 0.333,
+      "citation_recall": 1.0,
+      "faithful": true,
+      "faithfulness_score": 0.9
+    }
+  ],
+  "aggregate": {
+    "n_examples": 1,
+    "exact_match_rate": 1.0,
+    "mean_faithfulness_score": 0.9,
+    "pct_faithful": 1.0,
+    "mean_citation_precision": 0.333,
+    "mean_citation_recall": 1.0,
+    "median_latency_ms": 1.0,
+    "total_cost_usd": 0.00025
+  }
+}

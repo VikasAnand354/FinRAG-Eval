@@ -1,6 +1,6 @@
 """Tests for leaderboard summary generation."""
 
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 
 from src.common.models import RunArtifact, ScoredRow
 from src.leaderboard.artifacts import compute_aggregate
@@ -24,7 +24,7 @@ def _make_artifact() -> RunArtifact:
     )
     return RunArtifact(
         run_id="smoke-001",
-        timestamp=datetime(2026, 4, 3, tzinfo=timezone.utc),
+        timestamp=datetime(2026, 4, 3, tzinfo=UTC),
         config_snapshot={},
         scores=[row],
         aggregate=compute_aggregate([row]),

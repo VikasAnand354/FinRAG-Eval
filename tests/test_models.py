@@ -1,4 +1,4 @@
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 
 
 def test_run_config_round_trip():
@@ -90,7 +90,7 @@ def test_run_artifact_round_trip():
     )
     artifact = RunArtifact(
         run_id="test-001",
-        timestamp=datetime(2026, 1, 1, tzinfo=timezone.utc),
+        timestamp=datetime(2026, 1, 1, tzinfo=UTC),
         config_snapshot={"run_id": "test-001"},
         scores=[row],
         aggregate={"n_examples": 1},
