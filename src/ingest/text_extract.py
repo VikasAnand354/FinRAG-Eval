@@ -2,8 +2,21 @@ import re
 from html.parser import HTMLParser
 
 _BLOCK_TAGS = {
-    "p", "div", "tr", "h1", "h2", "h3", "h4", "h5", "h6",
-    "li", "section", "article", "header", "footer", "table",
+    "p",
+    "div",
+    "tr",
+    "h1",
+    "h2",
+    "h3",
+    "h4",
+    "h5",
+    "h6",
+    "li",
+    "section",
+    "article",
+    "header",
+    "footer",
+    "table",
 }
 _SKIP_TAGS = {"script", "style", "head"}
 
