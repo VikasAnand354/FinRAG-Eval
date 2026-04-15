@@ -28,5 +28,8 @@ datasets/benchmark/review_sheet_reviewed.csv
 # macOS
 .DS_Store
 
+# Claude Code
+.claude/
+
 # Internal planning docs (not for public release)
 docs/superpowers/
