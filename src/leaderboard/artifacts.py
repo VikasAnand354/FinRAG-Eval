@@ -21,9 +21,7 @@ def compute_aggregate(scores: list[ScoredRow]) -> dict[str, Any]:
     if n == 0:
         return {"n_examples": 0}
 
-    faithfulness_scores = [
-        s.faithfulness_score for s in scores if s.faithfulness_score is not None
-    ]
+    faithfulness_scores = [s.faithfulness_score for s in scores if s.faithfulness_score is not None]
 
     return {
         "n_examples": n,

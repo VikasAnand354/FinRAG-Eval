@@ -6,32 +6,43 @@ import requests
 BASE_URL = "https://data.sec.gov"
 HEADERS = {"User-Agent": "finrag-eval your_email@example.com"}
 
+
 def get_cik_from_ticker(ticker: str) -> str:
     url = "https://www.sec.gov/files/company_tickers.json"
-    data = requests.get(url).json()
+    data = requests.get(url, headers=HEADERS).json()
     for item in data.values():
         if item["ticker"] == ticker:
             return str(item["cik_str"]).zfill(10)
     raise ValueError(f"CIK not found for {ticker}")
 
+
 def fetch_company_submissions(cik: str):
     url = f"{BASE_URL}/submissions/CIK{cik}.json"
     return requests.get(url, headers=HEADERS).json()
 
-def filter_filings(submissions, form_types=("10-K","10-Q"), limit=3):
+
+def filter_filings(submissions, form_types=("10-K", "10-Q"), limit=3, scan_limit=1000):
+    """Return up to `limit` filings matching `form_types`.
+
+    Scans up to `scan_limit` recent filings to handle companies like JPM
+    that file hundreds of prospectus supplements (424B2) daily.
+    """
     filings = submissions["filings"]["recent"]
     results = []
-    for i in range(len(filings["form"])):
+    for i in range(min(scan_limit, len(filings["form"]))):
         if filings["form"][i] in form_types:
-            results.append({
-                "form": filings["form"][i],
-                "accession": filings["accessionNumber"][i].replace("-", ""),
-                "primary_doc": filings["primaryDocument"][i],
-                "filing_date": filings["filingDate"][i]
-            })
+            results.append(
+                {
+                    "form": filings["form"][i],
+                    "accession": filings["accessionNumber"][i].replace("-", ""),
+                    "primary_doc": filings["primaryDocument"][i],
+                    "filing_date": filings["filingDate"][i],
+                }
+            )
         if len(results) >= limit:
             break
     return results
+
 
 def download_filing(cik: str, filing, out_dir: Path):
     accession = filing["accession"]
@@ -43,6 +54,7 @@ def download_filing(cik: str, filing, out_dir: Path):
     with open(out_path, "wb") as f:
         f.write(r.content)
     return out_path
+
 
 def fetch_sec_filings_for_ticker(ticker: str, output_root="data/raw/sec"):
     cik = get_cik_from_ticker(ticker)

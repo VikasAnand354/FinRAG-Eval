@@ -80,6 +80,7 @@ def generate(
             submissions,
             form_types=tuple(cfg.form_types),
             limit=len(cfg.fiscal_years) * len(cfg.form_types) * 3,
+            scan_limit=30000,
         )
         filings = [f for f in filings if int(f["filing_date"][:4]) in cfg.fiscal_years]
 

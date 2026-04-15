@@ -19,5 +19,14 @@ outputs/
 # Generated dataset (fetched filings + LLM candidates)
 datasets/full/
 
+# Benchmark dataset — exclude raw filings and review artefacts, keep JSONL
+datasets/benchmark/raw/
+datasets/benchmark/candidates.jsonl
+datasets/benchmark/review_sheet.csv
+datasets/benchmark/review_sheet_reviewed.csv
+
 # macOS
 .DS_Store
+
+# Internal planning docs (not for public release)
+docs/superpowers/

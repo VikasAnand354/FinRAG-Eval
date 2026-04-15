@@ -39,9 +39,11 @@ def main(config: str = typer.Option(..., "--config", help="Path to YAML run conf
 
     if run_config.generation_adapter == "mock":
         from src.generation.azure_openai import MockGenerationAdapter
+
         adapter = MockGenerationAdapter()
     elif run_config.generation_adapter == "azure_openai":
         from src.generation.azure_openai import AzureOpenAIAdapter
+
         adapter = AzureOpenAIAdapter()
     else:
         raise ValueError(f"Unknown generation_adapter: {run_config.generation_adapter}")

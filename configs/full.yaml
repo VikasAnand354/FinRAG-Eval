@@ -1,6 +1,6 @@
 run_id: full-001
-dataset_path: datasets/full/qa_examples.jsonl
-chunks_path: datasets/full/chunks.jsonl
+dataset_path: datasets/benchmark/qa_examples.jsonl
+chunks_path: datasets/benchmark/chunks.jsonl
 retriever: bm25
 top_k: 5
 generation_adapter: azure_openai
