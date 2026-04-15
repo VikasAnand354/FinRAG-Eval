@@ -28,7 +28,7 @@ If you are unsure whether something fits the project scope, open an issue first.
 ### 1. Clone and create a virtual environment
 
 ```bash
-git clone https://github.com/your-org/finrag-eval.git
+git clone https://github.com/VikasAnand354/FinRAG-Eval.git
 cd finrag-eval
 python -m venv .venv
 source .venv/bin/activate
