@@ -1,4 +1,4 @@
-run_id: full-001
+run_id: full-004
 dataset_path: datasets/benchmark/qa_examples.jsonl
 chunks_path: datasets/benchmark/chunks.jsonl
 retriever: bm25

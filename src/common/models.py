@@ -113,6 +113,7 @@ class QACandidate(BaseModel):
     gold_citations: list[str]
     review_status: Literal["pending", "approved", "rejected", "edited"] = "pending"
     reviewer_note: str = ""
+    qa_prompt_version: str = ""
 
 
 class DatasetBuildConfig(BaseModel):

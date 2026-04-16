@@ -11,15 +11,15 @@ from src.common.models import RunArtifact, ScoredRow
 def compute_aggregate(scores: list[ScoredRow]) -> dict[str, Any]:
     """Compute aggregate metrics from scored rows.
 
-    Args:
-        scores: List of scored examples from a run.
-
-    Returns:
-        Dictionary of aggregate metrics.
+    Raises:
+        ValueError: If scores is empty — a run with zero examples is invalid.
     """
     n = len(scores)
     if n == 0:
-        return {"n_examples": 0}
+        raise ValueError(
+            "Cannot compute aggregate: no scored examples. "
+            "Check dataset_path and chunks_path in your config."
+        )
 
     faithfulness_scores = [s.faithfulness_score for s in scores if s.faithfulness_score is not None]
 
@@ -38,15 +38,7 @@ def compute_aggregate(scores: list[ScoredRow]) -> dict[str, Any]:
 
 
 def write_artifact(run: RunArtifact, output_dir: Path) -> Path:
-    """Write artifact to disk with separate files for scores, config, and summary.
-
-    Args:
-        run: The run artifact to write.
-        output_dir: Parent directory where run directory will be created.
-
-    Returns:
-        Path to the created run directory.
-    """
+    """Write artifact to disk with separate files for scores, config, and summary."""
     run_dir = output_dir / run.run_id
     run_dir.mkdir(parents=True, exist_ok=True)
 
@@ -62,13 +54,6 @@ def write_artifact(run: RunArtifact, output_dir: Path) -> Path:
 
 
 def validate_artifact(path: Path) -> RunArtifact:
-    """Load and validate an artifact from disk.
-
-    Args:
-        path: Path to artifact.json file.
-
-    Returns:
-        Validated RunArtifact instance.
-    """
+    """Load and validate an artifact from disk via full Pydantic round-trip."""
     data = json.loads(path.read_text())
     return RunArtifact.model_validate(data)

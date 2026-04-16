@@ -86,5 +86,5 @@ def test_compute_aggregate_values():
 def test_compute_aggregate_empty():
     from src.leaderboard.artifacts import compute_aggregate
 
-    agg = compute_aggregate([])
-    assert agg["n_examples"] == 0
+    with pytest.raises(ValueError, match="no scored examples"):
+        compute_aggregate([])

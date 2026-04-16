@@ -1,4 +1,5 @@
 from src.common.models import BenchmarkExample, Chunk, PipelineResult, RunConfig, ScoredRow
+from src.evaluators.answer import score_exact_match
 from src.evaluators.citation import score_citations
 from src.evaluators.faithfulness import score_faithfulness
 from src.evaluators.latency import score_latency
@@ -14,6 +15,7 @@ def evaluate(
 ) -> ScoredRow:
     latency = score_latency(result)
     citations = score_citations(result, example)
+    exact = score_exact_match(result, example)
     faithfulness = score_faithfulness(result, chunks, judge)
 
     return ScoredRow(
@@ -22,5 +24,6 @@ def evaluate(
         citations=result.citations,
         **latency,
         **citations,
+        **exact,
         **faithfulness,
     )

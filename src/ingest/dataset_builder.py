@@ -3,6 +3,13 @@ from pathlib import Path
 
 from src.common.models import BenchmarkExample, GoldCitation, QACandidate
 
+_ANSWER_TYPE_MAP = {
+    "numerical": "numerical",
+    "comparative": "long",
+    "multi_hop": "long",
+    "factual": "short",
+}
+
 
 def load_existing_chunk_ids(candidates_path: Path) -> set[str]:
     """Return set of chunk_ids already present in candidates_path."""
@@ -45,15 +52,26 @@ def load_pending_candidates(candidates_path: Path) -> list[QACandidate]:
     return result
 
 
-def candidate_to_example(candidate: QACandidate, example_id: str) -> BenchmarkExample:
-    """Convert an approved QACandidate to a BenchmarkExample."""
+def candidate_to_example(
+    candidate: QACandidate,
+    example_id: str,
+    source_split: str = "test",
+) -> BenchmarkExample:
+    """Convert an approved QACandidate to a BenchmarkExample.
+
+    Args:
+        candidate:    Approved QACandidate record.
+        example_id:   Unique ID to assign (e.g. "q0001").
+        source_split: Dataset split — "train", "dev", or "test".
+    """
+    answer_type = _ANSWER_TYPE_MAP.get(candidate.question_type, "short")
     return BenchmarkExample(
         example_id=example_id,
         company=candidate.company,
         question=candidate.question,
         question_type=candidate.question_type,
         difficulty=candidate.difficulty,
-        answer_type="text",
+        answer_type=answer_type,
         gold_answer=candidate.gold_answer,
         gold_answer_normalized=None,
         normalization_unit=None,
@@ -68,7 +86,7 @@ def candidate_to_example(candidate: QACandidate, example_id: str) -> BenchmarkEx
         acceptable_aliases=[],
         time_sensitive=False,
         requires_multi_hop=candidate.question_type == "multi_hop",
-        source_split="test",
+        source_split=source_split,
     )
 
 

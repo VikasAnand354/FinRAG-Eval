@@ -85,15 +85,17 @@ def generate(
         filings = [f for f in filings if int(f["filing_date"][:4]) in cfg.fiscal_years]
 
         for filing in filings:
-            year = filing["filing_date"][:4]
+            # Use full filing date (YYYYMMDD) to avoid collisions between
+            # multiple 10-Qs in the same year (e.g. aapl_10q_20240629).
             form_slug = filing["form"].replace("-", "").lower()
-            document_id = f"{ticker.lower()}_{form_slug}_{year}"
+            date_slug = filing["filing_date"].replace("-", "")
+            document_id = f"{ticker.lower()}_{form_slug}_{date_slug}"
 
             if document_id in existing_doc_ids:
                 console.print(f"  [dim]Skip {document_id} (already processed)[/dim]")
                 continue
 
-            console.print(f"  Fetching {ticker} {filing['form']} {year}...")
+            console.print(f"  Fetching {ticker} {filing['form']} {filing['filing_date']}...")
             filing_path = download_filing(cik, filing, raw_dir / ticker)
 
             html = filing_path.read_bytes().decode("utf-8", errors="replace")
@@ -106,7 +108,7 @@ def generate(
                 source_type=filing["form"],
                 source_url=None,
                 doc_family=filing["form"],
-                fiscal_period=year,
+                fiscal_period=filing["filing_date"][:4],
                 calendar_date=None,
                 filing_date=filing["filing_date"],
                 report_period_end=None,
@@ -132,7 +134,7 @@ def generate(
             new_candidates: list[QACandidate] = []
             for chunk in interesting:
                 cands = generate_candidates(
-                    chunk, adapter, cfg, form_type=filing["form"], period=year
+                    chunk, adapter, cfg, form_type=filing["form"], period=filing["filing_date"][:4]
                 )
                 new_candidates.extend(cands)
                 existing_chunk_ids.add(chunk.chunk_id)
@@ -142,7 +144,7 @@ def generate(
 
             existing_doc_ids.add(document_id)
             console.print(
-                f"  {ticker} {filing['form']} {year} → "
+                f"  {ticker} {filing['form']} {filing['filing_date']} → "
                 f"{len(chunks)} chunks → "
                 f"{len(interesting)} interesting → "
                 f"{len(new_candidates)} candidates"

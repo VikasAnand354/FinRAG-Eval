@@ -17,6 +17,25 @@ app = typer.Typer()
 console = Console()
 
 
+def _validate_gold_citations(examples: list[BenchmarkExample], chunk_ids: set[str]) -> None:
+    """Raise if any gold citation chunk ID is missing from the chunk set.
+
+    A missing gold citation chunk ID silently deflates citation recall.
+    Better to fail loudly before spending money on LLM calls.
+    """
+    missing: list[str] = []
+    for ex in examples:
+        for gc in ex.gold_citations:
+            if gc.chunk_id not in chunk_ids:
+                missing.append(f"{ex.example_id}: {gc.chunk_id}")
+    if missing:
+        raise ValueError(
+            f"{len(missing)} gold citation(s) reference chunk IDs not found in chunks file:\n"
+            + "\n".join(missing[:10])
+            + ("\n  ..." if len(missing) > 10 else "")
+        )
+
+
 @app.command()
 def main(config: str = typer.Option(..., "--config", help="Path to YAML run config")) -> None:
     run_config = load_run_config(config)
@@ -34,6 +53,10 @@ def main(config: str = typer.Option(..., "--config", help="Path to YAML run conf
             line = line.strip()
             if line:
                 chunks.append(Chunk.model_validate_json(line))
+
+    # Pre-flight: ensure all gold citation chunk IDs exist
+    chunk_id_set = {c.chunk_id for c in chunks}
+    _validate_gold_citations(examples, chunk_id_set)
 
     retriever = BM25Retriever(chunks)
 
@@ -55,7 +78,12 @@ def main(config: str = typer.Option(..., "--config", help="Path to YAML run conf
 
     scored_rows = []
     for example in track(examples, description="Evaluating..."):
-        retrieved = retriever.retrieve(example.question, top_k=run_config.top_k)
+        # Scope retrieval to the example's company to prevent cross-company contamination
+        retrieved = retriever.retrieve(
+            example.question,
+            top_k=run_config.top_k,
+            company=example.company,
+        )
         result = adapter.generate(
             example_id=example.example_id,
             question=example.question,

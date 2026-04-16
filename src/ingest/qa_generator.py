@@ -6,6 +6,7 @@ import re
 from typing import TYPE_CHECKING
 
 from src.common.models import Chunk, DatasetBuildConfig, QACandidate
+from src.ingest.text_extract import is_prose_paragraph
 
 if TYPE_CHECKING:
     from src.generation.base import GenerationAdapter
@@ -42,11 +43,14 @@ def is_interesting_chunk(chunk: Chunk, sections: list[str]) -> bool:
     Filters out:
     - Chunks with fewer than 80 tokens (too short for a real question)
     - Chunks with no financial signal (numbers, %, currency symbols)
+    - Chunks dominated by XBRL namespace tokens (not readable prose)
     - Chunks whose section_title is set but not in the allowed sections list
     """
     if chunk.token_count < 80:
         return False
     if not _FINANCIAL_SIGNAL.search(chunk.text):
+        return False
+    if not is_prose_paragraph(chunk.text):
         return False
     return chunk.section_title is None or chunk.section_title in sections
 
@@ -91,6 +95,7 @@ def generate_candidates(
                     question_type=pair["type"],
                     gold_citations=[chunk.chunk_id],
                     review_status="pending",
+                    qa_prompt_version=QA_GENERATION_PROMPT_VERSION,
                 )
             )
         except Exception:
